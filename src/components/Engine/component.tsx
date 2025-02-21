@@ -17,7 +17,8 @@ export const Engine = ({ height, width }: EngineProps) => {
   const BOARD_SIZE = 8;
 
   const handleChessCoordsClick = useCallback(
-    (x: number, y: number) => {
+    (x: number | null, y: number | null) => {
+      if (x === null || y === null) return;
       const a = convertToChessCoords(x, y);
       const b = convertFromChessCoords(a);
 
@@ -49,6 +50,9 @@ export const Engine = ({ height, width }: EngineProps) => {
       if (piece)
         return (
           <ChessPiece
+            onClick={() =>
+              handleChessCoordsClick(piece.coords.x, piece.coords.y)
+            }
             width={cellSize}
             height={cellSize}
             type={piece.type}
@@ -57,7 +61,7 @@ export const Engine = ({ height, width }: EngineProps) => {
           />
         );
     },
-    [cellSize, piecesInfo]
+    [cellSize, handleChessCoordsClick, piecesInfo]
   );
 
   const renderBoard = useMemo(() => {
@@ -72,7 +76,6 @@ export const Engine = ({ height, width }: EngineProps) => {
           <div
             key={convertToChessCoords(col, row)}
             id={convertToChessCoords(col, row)}
-            onClick={() => handleChessCoordsClick(col, row)}
             className={clsx("absolute cursor-pointer", {
               "bg-chess-light": isLight,
               "bg-chess-dark": !isLight,
@@ -99,7 +102,6 @@ export const Engine = ({ height, width }: EngineProps) => {
     offsetX,
     offsetY,
     handleRenderPiece,
-    handleChessCoordsClick,
   ]);
 
   const renderCoordinates = useMemo(() => {

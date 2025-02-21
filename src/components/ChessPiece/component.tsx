@@ -2,7 +2,13 @@ import { useCallback } from "react";
 import { ChessPieceProps } from "./types";
 import { Bishop, King, Knight, Peon, Queen, Rook } from "./Pieces";
 
-export const ChessPiece = ({ color, height, type, width }: ChessPieceProps) => {
+export const ChessPiece = ({
+  color,
+  height,
+  type,
+  width,
+  ...rest
+}: ChessPieceProps) => {
   const RenderPiece = useCallback(
     (type: ChessPieceProps["type"]) => {
       switch (type) {
@@ -23,5 +29,9 @@ export const ChessPiece = ({ color, height, type, width }: ChessPieceProps) => {
     [color, height, width]
   );
 
-  return <div id={type}>{RenderPiece(type)}</div>;
+  return (
+    <div id={type} {...rest}>
+      {RenderPiece(type)}
+    </div>
+  );
 };
