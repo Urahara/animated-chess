@@ -28,99 +28,283 @@ export const ChessboardContextProvider = ({
   };
 
   const handleVerifyIsEmptyCell = useCallback(
-    ({ coords, color }: Pick<PiecesInfo, "coords" | "color">) => {
-      if (coords.x === null || coords?.y === null) return false;
-      if (coords.x > 7 || coords?.y > 7) return false;
-      if (coords.x < 0 || coords?.y < 0) return false;
+    (
+      { coords, color }: Pick<PiecesInfo, "coords" | "color">,
+      condition: "enemyOnly" | "any" = "any"
+    ) => {
+      // Verifica se as coordenadas são válidas
+      if (coords.x === null || coords.y === null) return false;
+      if (coords.x < 0 || coords.x > 7 || coords.y < 0 || coords.y > 7)
+        return false;
 
-      const hasPiece = piecesInfo.some(
-        (el) =>
-          el.coords.x === coords.x &&
-          el.coords.y === coords.y &&
-          el.color === color
+      // Procura se há alguma peça na célula
+      const pieceAtCoord = piecesInfo.find(
+        (el) => el.coords.x === coords.x && el.coords.y === coords.y
       );
 
-      return !hasPiece;
+      if (condition === "enemyOnly") {
+        // Retorna true se houver uma peça e ela for de cor oposta
+        return pieceAtCoord ? pieceAtCoord.color !== color : false;
+      }
+      // Para condição "any": retorna true somente se a célula estiver vazia
+      return !pieceAtCoord;
     },
     [piecesInfo]
   );
-
-  const handleCalcPathColor = (
-    color: PiecesInfo["color"],
-    coord: PiecesInfo["coords"]["x"]
-  ) => {
-    if (color === "black" && coord !== null) return -1 * coord;
-
-    return coord as number;
-  };
-
   const handleSetPathForPiece = useCallback(
     (piece: PiecesInfo) => {
-      if (piece.coords.y === null || piece.coords.x === null) return;
+      if (piece.coords.x === null || piece.coords.y === null) return;
       const { x, y } = piece.coords;
-      const calculedPath = [];
+      const calculatedPaths: BasicCoords[] = [];
+
+      // Função para garantir que a coordenada esteja dentro do tabuleiro (0 a 7)
+      const isValidCoord = (coord: BasicCoords) => {
+        if (coord.x === null || coord.y === null) return false;
+        return coord.x >= 0 && coord.x < 8 && coord.y >= 0 && coord.y < 8;
+      };
 
       switch (piece.type) {
-        case "knight": {
-          const pY = (y +
-            handleCalcPathColor(piece.color, 2)) as BasicCoords["y"];
-          let newPosition = {
-            y: pY,
-            x: (x - 1) as BasicCoords["x"],
-          };
+        case "peon": {
+          // Define a direção: +1 para peões brancos, -1 para peões pretos
+          const direction = piece.color === "white" ? 1 : -1;
 
+          // Movimento para frente: só avança se a célula estiver vazia
+          const forwardOne = { x, y: (y + direction) as BasicCoords["y"] };
           if (
-            handleVerifyIsEmptyCell({ color: piece.color, coords: newPosition })
+            isValidCoord(forwardOne) &&
+            handleVerifyIsEmptyCell({ color: piece.color, coords: forwardOne })
           ) {
-            calculedPath.push(newPosition);
-          }
+            calculatedPaths.push(forwardOne);
 
-          newPosition = {
-            y: pY,
-            x: (x + 1) as BasicCoords["x"],
-          };
-
-          if (
-            handleVerifyIsEmptyCell({ color: piece.color, coords: newPosition })
-          ) {
-            calculedPath.push(newPosition);
-          }
-
-          break;
-        }
-        default: {
-          let newPosition = {
-            y: (y + handleCalcPathColor(piece.color, 1)) as BasicCoords["y"],
-            x,
-          };
-
-          if (
-            handleVerifyIsEmptyCell({ color: piece.color, coords: newPosition })
-          ) {
-            calculedPath.push(newPosition);
-          }
-
-          if (piece.firstMove) {
-            newPosition = {
-              y: (y + handleCalcPathColor(piece.color, 2)) as BasicCoords["y"],
-              x,
-            };
-
-            if (
-              handleVerifyIsEmptyCell({
-                color: piece.color,
-                coords: newPosition,
-              })
-            ) {
-              calculedPath.push(newPosition);
+            // Se for o primeiro movimento, permite avançar duas casas
+            if (piece.firstMove) {
+              const forwardTwo = {
+                x,
+                y: (y + direction * 2) as BasicCoords["y"],
+              };
+              if (
+                isValidCoord(forwardTwo) &&
+                handleVerifyIsEmptyCell({
+                  color: piece.color,
+                  coords: forwardTwo,
+                })
+              ) {
+                calculatedPaths.push(forwardTwo);
+              }
             }
           }
+          // Se houver qualquer peça (mesmo inimiga) à frente, o peão não pode avançar
 
+          // Movimentos diagonais para captura:
+          // O peão pode capturar somente se houver uma peça inimiga na diagonal
+          const diagonalLeft = {
+            x: x - 1,
+            y: y + direction,
+          } as BasicCoords;
+          if (
+            isValidCoord(diagonalLeft) &&
+            handleVerifyIsEmptyCell(
+              { color: piece.color, coords: diagonalLeft },
+              "enemyOnly"
+            )
+          ) {
+            calculatedPaths.push(diagonalLeft);
+          }
+          const diagonalRight = {
+            x: x + 1,
+            y: y + direction,
+          } as BasicCoords;
+          if (
+            isValidCoord(diagonalRight) &&
+            handleVerifyIsEmptyCell(
+              { color: piece.color, coords: diagonalRight },
+              "enemyOnly"
+            )
+          ) {
+            calculatedPaths.push(diagonalRight);
+          }
           break;
         }
-      }
+        case "knight": {
+          const knightMoves = [
+            { x: x + 1, y: y + 2 },
+            { x: x - 1, y: y + 2 },
+            { x: x + 1, y: y - 2 },
+            { x: x - 1, y: y - 2 },
+            { x: x + 2, y: y + 1 },
+            { x: x - 2, y: y + 1 },
+            { x: x + 2, y: y - 1 },
+            { x: x - 2, y: y - 1 },
+          ] as BasicCoords[];
 
-      setPath(calculedPath);
+          knightMoves.forEach((move) => {
+            if (isValidCoord(move)) {
+              // O cavalo pode capturar se a célula estiver vazia ou tiver um inimigo
+              if (
+                handleVerifyIsEmptyCell({ color: piece.color, coords: move }) ||
+                handleVerifyIsEmptyCell(
+                  { color: piece.color, coords: move },
+                  "enemyOnly"
+                )
+              ) {
+                calculatedPaths.push(move);
+              }
+            }
+          });
+          break;
+        }
+        case "bishop": {
+          const directions = [
+            { x: 1, y: 1 },
+            { x: -1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: -1 },
+          ];
+
+          directions.forEach((dir) => {
+            let step = 1;
+            while (true) {
+              const newPos = {
+                x: x + dir.x * step,
+                y: y + dir.y * step,
+              } as BasicCoords;
+              if (!isValidCoord(newPos)) break;
+              if (
+                handleVerifyIsEmptyCell({ color: piece.color, coords: newPos })
+              ) {
+                calculatedPaths.push(newPos);
+              } else {
+                // Se a célula não estiver vazia e tiver um inimigo, captura; porém, interrompe a varredura
+                if (
+                  handleVerifyIsEmptyCell(
+                    { color: piece.color, coords: newPos },
+                    "enemyOnly"
+                  )
+                ) {
+                  calculatedPaths.push(newPos);
+                }
+                break;
+              }
+              step++;
+            }
+          });
+          break;
+        }
+        case "rook": {
+          const directions = [
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+          ];
+
+          directions.forEach((dir) => {
+            let step = 1;
+            while (true) {
+              const newPos = {
+                x: x + dir.x * step,
+                y: y + dir.y * step,
+              } as BasicCoords;
+              if (!isValidCoord(newPos)) break;
+              if (
+                handleVerifyIsEmptyCell({ color: piece.color, coords: newPos })
+              ) {
+                calculatedPaths.push(newPos);
+              } else {
+                if (
+                  handleVerifyIsEmptyCell(
+                    { color: piece.color, coords: newPos },
+                    "enemyOnly"
+                  )
+                ) {
+                  calculatedPaths.push(newPos);
+                }
+                break;
+              }
+              step++;
+            }
+          });
+          break;
+        }
+        case "queen": {
+          const directions = [
+            { x: 1, y: 1 },
+            { x: -1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: -1 },
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+          ];
+
+          directions.forEach((dir) => {
+            let step = 1;
+            while (true) {
+              const newPos = {
+                x: x + dir.x * step,
+                y: y + dir.y * step,
+              } as BasicCoords;
+              if (!isValidCoord(newPos)) break;
+              if (
+                handleVerifyIsEmptyCell({ color: piece.color, coords: newPos })
+              ) {
+                calculatedPaths.push(newPos);
+              } else {
+                if (
+                  handleVerifyIsEmptyCell(
+                    { color: piece.color, coords: newPos },
+                    "enemyOnly"
+                  )
+                ) {
+                  calculatedPaths.push(newPos);
+                }
+                break;
+              }
+              step++;
+            }
+          });
+          break;
+        }
+        case "king": {
+          const directions = [
+            { x: 1, y: 1 },
+            { x: -1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: -1 },
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+          ];
+
+          directions.forEach((dir) => {
+            const newPos = {
+              x: x + dir.x,
+              y: y + dir.y,
+            } as BasicCoords;
+            if (isValidCoord(newPos)) {
+              // O rei pode mover-se para uma célula vazia ou capturar um inimigo
+              if (
+                handleVerifyIsEmptyCell({
+                  color: piece.color,
+                  coords: newPos,
+                }) ||
+                handleVerifyIsEmptyCell(
+                  { color: piece.color, coords: newPos },
+                  "enemyOnly"
+                )
+              ) {
+                calculatedPaths.push(newPos);
+              }
+            }
+          });
+          break;
+        }
+        default:
+          break;
+      }
+      setPath(calculatedPaths);
     },
     [handleVerifyIsEmptyCell]
   );

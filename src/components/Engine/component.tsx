@@ -77,6 +77,12 @@ export const Engine = ({ height, width }: EngineProps) => {
           (el) => el.x === cellCoord.x && el.y === cellCoord.y
         );
         const isLight = (row + col) % 2 === 0;
+        let hasEnemyOnThePath = false;
+
+        if (isPath)
+          hasEnemyOnThePath = !!piecesInfo?.find(
+            (p) => p.coords.x === col && p.coords.y === row
+          );
 
         cells.push(
           <div
@@ -85,7 +91,9 @@ export const Engine = ({ height, width }: EngineProps) => {
             className={clsx("absolute cursor-pointer", {
               "bg-chess-light": isLight,
               "bg-chess-dark": !isLight,
-              "animate-chess-pulse !bg-blue-200 duration-700": isPath,
+              "animate-chess-pulse duration-700": isPath,
+              "!bg-blue-200": !hasEnemyOnThePath && isPath,
+              "!bg-red-200": hasEnemyOnThePath && isPath,
             })}
             style={{
               width: `${cellSize}px`,
@@ -102,6 +110,7 @@ export const Engine = ({ height, width }: EngineProps) => {
     return cells;
   }, [
     path,
+    piecesInfo,
     convertToChessCoords,
     cellSize,
     offsetX,
