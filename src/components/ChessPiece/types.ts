@@ -23,4 +23,4 @@ export type PiecesInfo = {
   color: "black" | "white";
   type: PiecesTypes;
   firstMove?: boolean;
-}[];
+}

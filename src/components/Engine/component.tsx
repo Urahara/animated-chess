@@ -2,32 +2,37 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import { BasicCoords, ChessboardContext } from "@/context";
 import clsx from "clsx";
-import { ChessPiece } from "../ChessPiece";
+import { ChessPiece, PiecesInfo } from "../ChessPiece";
 import { EngineProps } from "./types";
 
 export const Engine = ({ height, width }: EngineProps) => {
-  const {
-    selectedCoords,
-    setSelectedCoords,
-    convertToChessCoords,
-    convertFromChessCoords,
-    piecesInfo,
-  } = useContext(ChessboardContext);
+  const { path, setSelectedPieceCoords, convertToChessCoords, piecesInfo } =
+    useContext(ChessboardContext);
 
   const BOARD_SIZE = 8;
 
   const handleChessCoordsClick = useCallback(
-    (x: number | null, y: number | null) => {
-      if (x === null || y === null) return;
-      const a = convertToChessCoords(x, y);
-      const b = convertFromChessCoords(a);
+    ({ alive, color, coords, id, type, firstMove }: PiecesInfo) => {
+      if (coords.x === null || coords.y === null) return;
+      console.log("SELECTED PIECE", {
+        alive,
+        color,
+        coords,
+        id,
+        type,
+        firstMove,
+      });
 
-      console.log("CHESS COORDS", a);
-      console.log("BASIC COORDS", b);
-
-      setSelectedCoords({ x, y });
+      setSelectedPieceCoords({
+        alive,
+        color,
+        coords,
+        id,
+        type,
+        firstMove,
+      });
     },
-    [convertFromChessCoords, convertToChessCoords, setSelectedCoords]
+    [setSelectedPieceCoords]
   );
 
   const { cellSize, offsetX, offsetY } = useMemo(() => {
@@ -50,9 +55,7 @@ export const Engine = ({ height, width }: EngineProps) => {
       if (piece)
         return (
           <ChessPiece
-            onClick={() =>
-              handleChessCoordsClick(piece.coords.x, piece.coords.y)
-            }
+            onClick={() => handleChessCoordsClick(piece)}
             width={cellSize}
             height={cellSize}
             type={piece.type}
@@ -69,17 +72,20 @@ export const Engine = ({ height, width }: EngineProps) => {
 
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
-        const isSelected = selectedCoords.x === col && selectedCoords.y === row;
+        const cellCoord = { x: col, y: row } as BasicCoords;
+        const isPath = path.some(
+          (el) => el.x === cellCoord.x && el.y === cellCoord.y
+        );
         const isLight = (row + col) % 2 === 0;
 
         cells.push(
           <div
-            key={convertToChessCoords(col, row)}
-            id={convertToChessCoords(col, row)}
+            key={convertToChessCoords(cellCoord)}
+            id={convertToChessCoords(cellCoord)}
             className={clsx("absolute cursor-pointer", {
               "bg-chess-light": isLight,
               "bg-chess-dark": !isLight,
-              "animate-chess-pulse !bg-chess-highlight": isSelected,
+              "animate-chess-pulse !bg-blue-200 duration-700": isPath,
             })}
             style={{
               width: `${cellSize}px`,
@@ -88,15 +94,14 @@ export const Engine = ({ height, width }: EngineProps) => {
               top: `${offsetY + row * cellSize}px`,
             }}
           >
-            {handleRenderPiece({ x: col, y: row })}
+            {handleRenderPiece({ x: col, y: row } as BasicCoords)}
           </div>
         );
       }
     }
     return cells;
   }, [
-    selectedCoords.x,
-    selectedCoords.y,
+    path,
     convertToChessCoords,
     cellSize,
     offsetX,

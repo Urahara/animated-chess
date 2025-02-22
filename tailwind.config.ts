@@ -9,16 +9,14 @@ export default {
   theme: {
     extend: {
       animation: {
-        "chess-pulse": "chess-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "chess-pulse": "chess-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         "chess-pulse": {
           "0%, 100%": {
-            transform: "scale(1)",
             opacity: "1",
           },
           "50%": {
-            transform: "scale(1.05)",
             opacity: "0.7",
           },
         },
@@ -28,7 +26,6 @@ export default {
         foreground: "var(--foreground)",
         "chess-light": '#FFD700',
         "chess-dark": '#003366',
-        "chess-highlight": "#87CEFA",
       },
     },
   },
