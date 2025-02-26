@@ -1,170 +1,209 @@
 "use client";
-import React, { useCallback, useContext, useMemo } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { BasicCoords, ChessboardContext } from "@/context";
 import clsx from "clsx";
-import { ChessPiece, PiecesInfo } from "../ChessPiece";
+import { ChessPiece } from "../ChessPiece";
 import { EngineProps } from "./types";
 
 export const Engine = ({ height, width }: EngineProps) => {
-  const { path, setSelectedPieceCoords, convertToChessCoords, piecesInfo } =
-    useContext(ChessboardContext);
+  const {
+    path,
+    setSelectedPieceCoords,
+    setPiecesInfo,
+    piecesInfo,
+    setPath,
+    selectedPieceCoords,
+  } = useContext(ChessboardContext);
 
   const BOARD_SIZE = 8;
+  const cellSize = Math.min(width, height) / BOARD_SIZE;
+  const offsetX = (width - BOARD_SIZE * cellSize) / 2;
+  const offsetY = (height - BOARD_SIZE * cellSize) / 2;
+  const previousPositions = useRef<Map<string, BasicCoords>>(new Map());
 
-  const handleChessCoordsClick = useCallback(
-    ({ alive, color, coords, id, type, firstMove }: PiecesInfo) => {
-      if (coords.x === null || coords.y === null) return;
-      console.log("SELECTED PIECE", {
-        alive,
-        color,
-        coords,
-        id,
-        type,
-        firstMove,
-      });
+  useEffect(() => {
+    const newPositions = new Map<string, BasicCoords>();
+    piecesInfo.forEach((piece) => {
+      newPositions.set(piece.id, { ...piece.coords });
+    });
+    previousPositions.current = newPositions;
+  }, [piecesInfo]);
 
-      setSelectedPieceCoords({
-        alive,
-        color,
-        coords,
-        id,
-        type,
-        firstMove,
-      });
-    },
-    [setSelectedPieceCoords]
-  );
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) =>
+      e.key === "Escape" && setPath([]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setPath]);
 
-  const { cellSize, offsetX, offsetY } = useMemo(() => {
-    const cellSize = Math.min(width, height) / BOARD_SIZE;
-    return {
-      cellSize,
-      offsetX: (width - BOARD_SIZE * cellSize) / 2,
-      offsetY: (height - BOARD_SIZE * cellSize) / 2,
-    };
-  }, [width, height]);
+  const handleSquareClick = useCallback(
+    (targetCoords: BasicCoords) => {
+      if (!selectedPieceCoords) return;
 
-  const handleRenderPiece = useCallback(
-    ({ x, y }: BasicCoords) => {
-      if (!piecesInfo.length) return;
-
-      const piece = piecesInfo?.find(
-        (p) => p.coords.x === x && p.coords.y === y
-      );
-
-      if (piece)
-        return (
-          <ChessPiece
-            onClick={() => handleChessCoordsClick(piece)}
-            width={cellSize}
-            height={cellSize}
-            type={piece.type}
-            color={piece.color}
-            key={piece.id}
-          />
+      setPiecesInfo((prev) => {
+        const capturedPiece = prev.find(
+          (p) =>
+            p.coords.x === targetCoords.x &&
+            p.coords.y === targetCoords.y &&
+            p.color !== selectedPieceCoords.color
         );
+
+        return prev.map((piece) => {
+          if (capturedPiece?.id === piece.id) {
+            return { ...piece, alive: false, coords: { x: null, y: null } };
+          }
+          if (piece.id === selectedPieceCoords.id) {
+            return {
+              ...piece,
+              coords: targetCoords,
+              ...(piece.type === "peon" && { firstMove: false }),
+            };
+          }
+          return piece;
+        });
+      });
+
+      setSelectedPieceCoords(null);
+      setPath([]);
     },
-    [cellSize, handleChessCoordsClick, piecesInfo]
+    [selectedPieceCoords, setPiecesInfo, setPath, setSelectedPieceCoords]
   );
 
   const renderBoard = useMemo(() => {
-    const cells = [];
-
-    for (let row = 0; row < BOARD_SIZE; row++) {
-      for (let col = 0; col < BOARD_SIZE; col++) {
-        const cellCoord = { x: col, y: row } as BasicCoords;
-        const isPath = path.some(
-          (el) => el.x === cellCoord.x && el.y === cellCoord.y
+    return Array(BOARD_SIZE * BOARD_SIZE)
+      .fill(null)
+      .map((_, index) => {
+        const x = index % BOARD_SIZE;
+        const y = Math.floor(index / BOARD_SIZE);
+        const isPath = path.some((p) => p.x === x && p.y === y);
+        const isLight = (x + y) % 2 === 0;
+        const hasEnemy = piecesInfo.some(
+          (p) =>
+            p.coords.x === x &&
+            p.coords.y === y &&
+            p.color !== selectedPieceCoords?.color
         );
-        const isLight = (row + col) % 2 === 0;
-        let hasEnemyOnThePath = false;
 
-        if (isPath)
-          hasEnemyOnThePath = !!piecesInfo?.find(
-            (p) => p.coords.x === col && p.coords.y === row
-          );
-
-        cells.push(
+        return (
           <div
-            key={convertToChessCoords(cellCoord)}
-            id={convertToChessCoords(cellCoord)}
+            key={`${x}-${y}`}
+            onClick={() => isPath && handleSquareClick({ x, y } as BasicCoords)}
             className={clsx("absolute cursor-pointer", {
               "bg-chess-light": isLight,
               "bg-chess-dark": !isLight,
-              "animate-chess-pulse duration-700": isPath,
-              "!bg-blue-200": !hasEnemyOnThePath && isPath,
-              "!bg-red-200": hasEnemyOnThePath && isPath,
+              "animate-chess-pulse duration-700 z-10": isPath,
+              "!bg-blue-200": isPath && !hasEnemy,
+              "!bg-red-200": isPath && hasEnemy,
             })}
             style={{
-              width: `${cellSize}px`,
-              height: `${cellSize}px`,
-              left: `${offsetX + col * cellSize}px`,
-              top: `${offsetY + row * cellSize}px`,
+              width: cellSize,
+              height: cellSize,
+              left: offsetX + x * cellSize,
+              top: offsetY + y * cellSize,
             }}
-          >
-            {handleRenderPiece({ x: col, y: row } as BasicCoords)}
-          </div>
+          />
         );
-      }
-    }
-    return cells;
+      });
   }, [
     path,
     piecesInfo,
-    convertToChessCoords,
     cellSize,
     offsetX,
     offsetY,
-    handleRenderPiece,
+    handleSquareClick,
+    selectedPieceCoords,
   ]);
 
+  const renderPieces = useMemo(() => {
+    return (
+      <AnimatePresence>
+        {piecesInfo
+          .filter((p) => p.alive)
+          .map((piece) => {
+            const prevPos = previousPositions.current.get(piece.id);
+            const targetX = offsetX + piece.coords.x! * cellSize;
+            const targetY = offsetY + piece.coords.y! * cellSize;
+            const initialX = prevPos
+              ? offsetX + prevPos.x! * cellSize
+              : targetX;
+            const initialY = prevPos
+              ? offsetY + prevPos.y! * cellSize
+              : targetY;
+            const isSelectable = !path.some(
+              (p) => p.x === piece.coords.x && p.y === piece.coords.y
+            );
+
+            const handlePieceClick = () => {
+              if (!isSelectable) return;
+              setSelectedPieceCoords(piece);
+            };
+
+            return (
+              <motion.div
+                key={piece.id}
+                initial={{ x: initialX, y: initialY }}
+                animate={{ x: targetX, y: targetY }}
+                transition={{ type: "tween", duration: 0.3 }}
+                className="absolute"
+                style={{ width: cellSize, height: cellSize }}
+                onClick={handlePieceClick}
+              >
+                <ChessPiece
+                  width={cellSize}
+                  height={cellSize}
+                  type={piece.type}
+                  color={piece.color}
+                  style={{ transform: `rotate(${piece.rotate}deg)` }}
+                />
+              </motion.div>
+            );
+          })}
+      </AnimatePresence>
+    );
+  }, [piecesInfo, offsetX, cellSize, offsetY, path, setSelectedPieceCoords]);
+
   const renderCoordinates = useMemo(() => {
-    const coordinates = [];
-
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const letter = String.fromCharCode(65 + col);
-      const baseY = offsetY + BOARD_SIZE * cellSize + 10;
-
-      coordinates.push(
-        <div
-          key={`coord-h-${col}`}
-          className="absolute text-sm text-white font-medium"
-          style={{
-            left: `${offsetX + col * cellSize + cellSize / 2}px`,
-            top: `${baseY}px`,
-            transform: "translateX(-50%)",
-          }}
-        >
-          {letter}
-        </div>
-      );
-    }
-
-    for (let row = 0; row < BOARD_SIZE; row++) {
-      const number = 8 - row;
-      const baseX = offsetX - 20;
-
-      coordinates.push(
-        <div
-          key={`coord-v-${row}`}
-          className="absolute text-sm text-white font-medium"
-          style={{
-            top: `${offsetY + row * cellSize + cellSize / 2}px`,
-            left: `${baseX}px`,
-            transform: "translateY(-50%)",
-          }}
-        >
-          {number}
-        </div>
-      );
-    }
-
-    return coordinates;
+    return (
+      <>
+        {Array.from({ length: BOARD_SIZE }).map((_, i) => (
+          <React.Fragment key={i}>
+            <div
+              className="absolute text-sm text-white font-medium"
+              style={{
+                left: offsetX + i * cellSize + cellSize / 2,
+                top: offsetY + BOARD_SIZE * cellSize + 10,
+                transform: "translateX(-50%)",
+              }}
+            >
+              {String.fromCharCode(65 + i)}
+            </div>
+            <div
+              className="absolute text-sm text-white font-medium"
+              style={{
+                top: offsetY + i * cellSize + cellSize / 2,
+                left: offsetX - 20,
+                transform: "translateY(-50%)",
+              }}
+            >
+              {8 - i}
+            </div>
+          </React.Fragment>
+        ))}
+      </>
+    );
   }, [cellSize, offsetX, offsetY]);
 
   return (
     <div className="relative" style={{ width, height }}>
       {renderBoard}
+      {renderPieces}
       {renderCoordinates}
     </div>
   );

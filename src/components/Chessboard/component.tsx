@@ -1,10 +1,13 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Engine } from "../Engine/component";
+import { ChessboardContext } from "@/context";
+import { ChessPiece, PiecesInfo } from "../ChessPiece";
 
 export const Chessboard = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [boardSize, setBoardSize] = useState(0);
+  const { piecesInfo } = useContext(ChessboardContext);
 
   useEffect(() => {
     const updateSize = () => {
@@ -25,12 +28,57 @@ export const Chessboard = () => {
     return () => observer.disconnect();
   }, []);
 
+  const { deadWhite, deadBlack } = useMemo(() => {
+    const deadBlack: PiecesInfo[] = [];
+    const deadWhite: PiecesInfo[] = [];
+
+    piecesInfo.forEach((el) => {
+      if (!el.alive) {
+        if (el.color === "white") deadWhite.push(el);
+        else deadBlack.push(el);
+      }
+    });
+
+    return {
+      deadBlack,
+      deadWhite,
+    };
+  }, [piecesInfo]);
+
+  const cellSize = Math.min(boardSize, boardSize) / 8;
+
   return (
     <div
       ref={containerRef}
-      className="w-full h-full flex justify-center items-center pb-7 pl-7"
+      className="w-full h-full flex justify-between items-center p-3 gap-3"
     >
-      <Engine width={boardSize} height={boardSize} />
+      <div className="w-full bg-slate-500 h-full">
+        {deadWhite.map((el) => (
+          <ChessPiece
+            key={el.id}
+            width={cellSize}
+            height={cellSize}
+            type={el.type}
+            color={el.color}
+            style={{ transform: `rotate(${el.rotate}deg)` }}
+          />
+        ))}
+      </div>
+      <div className="p-8 bg-red-800">
+        <Engine width={boardSize} height={boardSize} />
+      </div>
+      <div className="w-full bg-slate-500 h-full">
+        {deadBlack.map((el) => (
+          <ChessPiece
+            key={el.id}
+            width={cellSize}
+            height={cellSize}
+            type={el.type}
+            color={el.color}
+            style={{ transform: `rotate(${el.rotate}deg)` }}
+          />
+        ))}
+      </div>
     </div>
   );
 };

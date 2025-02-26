@@ -1,12 +1,14 @@
 import { useCallback } from "react";
 import { ChessPieceProps } from "./types";
 import { Bishop, King, Knight, Peon, Queen, Rook } from "./Pieces";
+import clsx from "clsx";
 
 export const ChessPiece = ({
   color,
   height,
   type,
   width,
+  className,
   ...rest
 }: ChessPieceProps) => {
   const RenderPiece = useCallback(
@@ -30,7 +32,7 @@ export const ChessPiece = ({
   );
 
   return (
-    <div id={type} {...rest}>
+    <div id={type} {...rest} className={clsx("transition-all", className)}>
       {RenderPiece(type)}
     </div>
   );

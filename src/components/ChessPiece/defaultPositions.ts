@@ -7,6 +7,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'rook',
     color: 'black',
+    rotate: 0,
     coords: { x: 0, y: 7 },
   },
   {
@@ -14,6 +15,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'knight',
     color: 'black',
+    rotate: 0,
     coords: { x: 1, y: 7 },
   },
   {
@@ -21,6 +23,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'bishop',
     color: 'black',
+    rotate: 0,
     coords: { x: 2, y: 7 },
   },
   {
@@ -28,6 +31,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'queen',
     color: 'black',
+    rotate: 0,
     coords: { x: 3, y: 7 },
   },
   {
@@ -35,6 +39,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'king',
     color: 'black',
+    rotate: 0,
     coords: { x: 4, y: 7 },
   },
   {
@@ -42,6 +47,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'bishop',
     color: 'black',
+    rotate: 0,
     coords: { x: 5, y: 7 },
   },
   {
@@ -49,6 +55,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'knight',
     color: 'black',
+    rotate: 0,
     coords: { x: 6, y: 7 },
   },
   {
@@ -56,6 +63,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'rook',
     color: 'black',
+    rotate: 0,
     coords: { x: 7, y: 7 },
   },
   // Peões pretos (linha 6)
@@ -65,6 +73,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 0, y: 6 },
   },
   {
@@ -73,6 +82,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 1, y: 6 },
   },
   {
@@ -81,6 +91,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 2, y: 6 },
   },
   {
@@ -89,6 +100,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 3, y: 6 },
   },
   {
@@ -97,6 +109,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 4, y: 6 },
   },
   {
@@ -105,6 +118,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 5, y: 6 },
   },
   {
@@ -113,6 +127,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 6, y: 6 },
   },
   {
@@ -121,6 +136,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'black',
+    rotate: 0,
     coords: { x: 7, y: 6 },
   },
   
@@ -130,6 +146,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'rook',
     color: 'white',
+    rotate: 180,
     coords: { x: 0, y: 0 },
   },
   {
@@ -137,6 +154,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'knight',
     color: 'white',
+    rotate: 180,
     coords: { x: 1, y: 0 },
   },
   {
@@ -144,6 +162,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'bishop',
     color: 'white',
+    rotate: 180,
     coords: { x: 2, y: 0 },
   },
   {
@@ -151,6 +170,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'queen',
     color: 'white',
+    rotate: 180,
     coords: { x: 3, y: 0 },
   },
   {
@@ -158,6 +178,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'king',
     color: 'white',
+    rotate: 180,
     coords: { x: 4, y: 0 },
   },
   {
@@ -165,6 +186,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'bishop',
     color: 'white',
+    rotate: 180,
     coords: { x: 5, y: 0 },
   },
   {
@@ -172,6 +194,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'knight',
     color: 'white',
+    rotate: 180,
     coords: { x: 6, y: 0 },
   },
   {
@@ -179,6 +202,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     alive: true,
     type: 'rook',
     color: 'white',
+    rotate: 180,
     coords: { x: 7, y: 0 },
   },
   // Peões brancos (linha 1)
@@ -188,6 +212,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 0, y: 1 },
   },
   {
@@ -196,6 +221,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 1, y: 1 },
   },
   {
@@ -204,6 +230,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 2, y: 1 },
   },
   {
@@ -212,6 +239,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 3, y: 1 },
   },
   {
@@ -220,6 +248,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 4, y: 1 },
   },
   {
@@ -228,6 +257,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 5, y: 1 },
   },
   {
@@ -236,6 +266,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 6, y: 1 },
   },
   {
@@ -244,6 +275,7 @@ export const defaultPiecesInfo: PiecesInfo[] = [
     type: 'peon',
     firstMove: true,
     color: 'white',
+    rotate: 180,
     coords: { x: 7, y: 1 },
   },
 ];

@@ -32,32 +32,28 @@ export const ChessboardContextProvider = ({
       { coords, color }: Pick<PiecesInfo, "coords" | "color">,
       condition: "enemyOnly" | "any" = "any"
     ) => {
-      // Verifica se as coordenadas são válidas
       if (coords.x === null || coords.y === null) return false;
       if (coords.x < 0 || coords.x > 7 || coords.y < 0 || coords.y > 7)
         return false;
 
-      // Procura se há alguma peça na célula
       const pieceAtCoord = piecesInfo.find(
         (el) => el.coords.x === coords.x && el.coords.y === coords.y
       );
 
       if (condition === "enemyOnly") {
-        // Retorna true se houver uma peça e ela for de cor oposta
         return pieceAtCoord ? pieceAtCoord.color !== color : false;
       }
-      // Para condição "any": retorna true somente se a célula estiver vazia
       return !pieceAtCoord;
     },
     [piecesInfo]
   );
+
   const handleSetPathForPiece = useCallback(
     (piece: PiecesInfo) => {
       if (piece.coords.x === null || piece.coords.y === null) return;
       const { x, y } = piece.coords;
       const calculatedPaths: BasicCoords[] = [];
 
-      // Função para garantir que a coordenada esteja dentro do tabuleiro (0 a 7)
       const isValidCoord = (coord: BasicCoords) => {
         if (coord.x === null || coord.y === null) return false;
         return coord.x >= 0 && coord.x < 8 && coord.y >= 0 && coord.y < 8;
@@ -65,10 +61,8 @@ export const ChessboardContextProvider = ({
 
       switch (piece.type) {
         case "peon": {
-          // Define a direção: +1 para peões brancos, -1 para peões pretos
           const direction = piece.color === "white" ? 1 : -1;
 
-          // Movimento para frente: só avança se a célula estiver vazia
           const forwardOne = { x, y: (y + direction) as BasicCoords["y"] };
           if (
             isValidCoord(forwardOne) &&
@@ -76,7 +70,6 @@ export const ChessboardContextProvider = ({
           ) {
             calculatedPaths.push(forwardOne);
 
-            // Se for o primeiro movimento, permite avançar duas casas
             if (piece.firstMove) {
               const forwardTwo = {
                 x,
@@ -93,10 +86,7 @@ export const ChessboardContextProvider = ({
               }
             }
           }
-          // Se houver qualquer peça (mesmo inimiga) à frente, o peão não pode avançar
 
-          // Movimentos diagonais para captura:
-          // O peão pode capturar somente se houver uma peça inimiga na diagonal
           const diagonalLeft = {
             x: x - 1,
             y: y + direction,
@@ -139,7 +129,6 @@ export const ChessboardContextProvider = ({
 
           knightMoves.forEach((move) => {
             if (isValidCoord(move)) {
-              // O cavalo pode capturar se a célula estiver vazia ou tiver um inimigo
               if (
                 handleVerifyIsEmptyCell({ color: piece.color, coords: move }) ||
                 handleVerifyIsEmptyCell(
@@ -174,7 +163,6 @@ export const ChessboardContextProvider = ({
               ) {
                 calculatedPaths.push(newPos);
               } else {
-                // Se a célula não estiver vazia e tiver um inimigo, captura; porém, interrompe a varredura
                 if (
                   handleVerifyIsEmptyCell(
                     { color: piece.color, coords: newPos },
@@ -284,7 +272,6 @@ export const ChessboardContextProvider = ({
               y: y + dir.y,
             } as BasicCoords;
             if (isValidCoord(newPos)) {
-              // O rei pode mover-se para uma célula vazia ou capturar um inimigo
               if (
                 handleVerifyIsEmptyCell({
                   color: piece.color,
