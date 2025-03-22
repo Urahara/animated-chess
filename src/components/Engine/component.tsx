@@ -9,8 +9,10 @@ import React, {
 import { motion, AnimatePresence } from "framer-motion";
 import { BasicCoords, ChessboardContext } from "@/context";
 import clsx from "clsx";
-import { ChessPiece } from "../ChessPiece";
+import { ChessPiece, defaultPiecesInfo } from "../ChessPiece";
 import { EngineProps } from "./types";
+import { GameContext } from "@/context/GameContext";
+import { GetNegativeColor } from "@/utils/GetNegativeColor";
 
 export const Engine = ({ height, width }: EngineProps) => {
   const {
@@ -21,6 +23,8 @@ export const Engine = ({ height, width }: EngineProps) => {
     setPath,
     selectedPieceCoords,
   } = useContext(ChessboardContext);
+
+  const { setTurn, turn, setGameOver } = useContext(GameContext);
 
   const BOARD_SIZE = 8;
   const cellSize = Math.min(width, height) / BOARD_SIZE;
@@ -55,11 +59,28 @@ export const Engine = ({ height, width }: EngineProps) => {
             p.color !== selectedPieceCoords.color
         );
 
+        if (capturedPiece?.type === "king") {
+          setGameOver({
+            over: true,
+            winner: {
+              color: GetNegativeColor(capturedPiece.color),
+              details: "O jogador ganhou",
+            },
+            looser: {
+              color: capturedPiece.color,
+              details: "O jogador perdeu",
+            },
+          });
+
+          return defaultPiecesInfo;
+        }
+
         return prev.map((piece) => {
           if (capturedPiece?.id === piece.id) {
             return { ...piece, alive: false, coords: { x: null, y: null } };
           }
           if (piece.id === selectedPieceCoords.id) {
+            setTurn(GetNegativeColor(piece.color));
             return {
               ...piece,
               coords: targetCoords,
@@ -73,7 +94,14 @@ export const Engine = ({ height, width }: EngineProps) => {
       setSelectedPieceCoords(null);
       setPath([]);
     },
-    [selectedPieceCoords, setPiecesInfo, setPath, setSelectedPieceCoords]
+    [
+      selectedPieceCoords,
+      setPiecesInfo,
+      setSelectedPieceCoords,
+      setPath,
+      setGameOver,
+      setTurn,
+    ]
   );
 
   const renderBoard = useMemo(() => {
@@ -95,10 +123,10 @@ export const Engine = ({ height, width }: EngineProps) => {
           <div
             key={`${x}-${y}`}
             onClick={() => isPath && handleSquareClick({ x, y } as BasicCoords)}
-            className={clsx("absolute cursor-pointer", {
+            className={clsx("absolute", {
               "bg-chess-light": isLight,
               "bg-chess-dark": !isLight,
-              "animate-chess-pulse duration-700 z-10": isPath,
+              "animate-chess-pulse duration-700 z-10 cursor-pointer": isPath,
               "!bg-blue-200": isPath && !hasEnemy,
               "!bg-red-200": isPath && hasEnemy,
             })}
@@ -139,9 +167,10 @@ export const Engine = ({ height, width }: EngineProps) => {
             const isSelectable = !path.some(
               (p) => p.x === piece.coords.x && p.y === piece.coords.y
             );
+            const isYourTurn = piece.color === turn;
 
             const handlePieceClick = () => {
-              if (!isSelectable) return;
+              if (!isSelectable || !isYourTurn) return;
               setSelectedPieceCoords(piece);
             };
 
@@ -160,6 +189,9 @@ export const Engine = ({ height, width }: EngineProps) => {
                   height={cellSize}
                   type={piece.type}
                   color={piece.color}
+                  className={clsx("", {
+                    "cursor-pointer": isYourTurn,
+                  })}
                   style={{ transform: `rotate(${piece.rotate}deg)` }}
                 />
               </motion.div>
@@ -167,7 +199,15 @@ export const Engine = ({ height, width }: EngineProps) => {
           })}
       </AnimatePresence>
     );
-  }, [piecesInfo, offsetX, cellSize, offsetY, path, setSelectedPieceCoords]);
+  }, [
+    piecesInfo,
+    offsetX,
+    cellSize,
+    offsetY,
+    path,
+    turn,
+    setSelectedPieceCoords,
+  ]);
 
   const renderCoordinates = useMemo(() => {
     return (
