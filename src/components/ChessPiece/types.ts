@@ -1,5 +1,5 @@
 import { BasicCoords } from "@/context";
-import { HTMLAttributes } from "react";
+import { MotionProps } from "framer-motion";
 
 export type PiecesTypes =
   | "peon"
@@ -10,11 +10,16 @@ export type PiecesTypes =
   | "rook";
 
 export type ChessPieceProps = {
+  color: "white" | "black";
+  type: "king" | "queen" | "bishop" | "knight" | "rook" | "peon";
   width: number;
   height: number;
-  type: PiecesTypes;
-  color: "black" | "white";
-} & HTMLAttributes<HTMLDivElement>
+  className?: string;
+  isAttacking?: boolean;
+  isMoving?: boolean;
+  isHit?: boolean;
+  isDead?: boolean;
+} & Omit<MotionProps, "children">;
 
 export type PiecesInfo = {
   id: string;

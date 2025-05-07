@@ -17,7 +17,8 @@
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-konva": "^19.0.2"
+    "react-konva": "^19.0.2",
+    "react-sprite-animator": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

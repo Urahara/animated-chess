@@ -168,6 +168,18 @@ export const Engine = ({ height, width }: EngineProps) => {
               (p) => p.x === piece.coords.x && p.y === piece.coords.y
             );
             const isYourTurn = piece.color === turn;
+            const isSelected = selectedPieceCoords?.id === piece.id;
+            const isAttacking = path.some(
+              (p) =>
+                p.x === piece.coords.x &&
+                p.y === piece.coords.y &&
+                piecesInfo.some(
+                  (target) =>
+                    target.coords.x === p.x &&
+                    target.coords.y === p.y &&
+                    target.color !== piece.color
+                )
+            );
 
             const handlePieceClick = () => {
               if (!isSelectable || !isYourTurn) return;
@@ -192,6 +204,8 @@ export const Engine = ({ height, width }: EngineProps) => {
                   className={clsx("", {
                     "cursor-pointer": isYourTurn,
                   })}
+                  isAttacking={isAttacking}
+                  isMoving={isSelected}
                   style={{ transform: `rotate(${piece.rotate}deg)` }}
                 />
               </motion.div>
@@ -207,6 +221,7 @@ export const Engine = ({ height, width }: EngineProps) => {
     path,
     turn,
     setSelectedPieceCoords,
+    selectedPieceCoords,
   ]);
 
   const renderCoordinates = useMemo(() => {
