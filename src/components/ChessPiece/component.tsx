@@ -1,38 +1,46 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { ChessPieceProps } from "./types";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useCanvasSprite } from "@/hooks";
 
 const SPRITE_CONFIG = {
   white: {
     idle: {
       sprite: "/sprites/Soldier/Soldier_Idle.png",
       frames: 3,
-      width: 192, // 3 frames * 64px
+      width: 192,
       height: 64,
+      fps: 6,
     },
     walk: {
       sprite: "/sprites/Soldier/Soldier_Walk.png",
       frames: 5,
-      width: 320, // 5 frames * 64px
+      width: 320,
       height: 64,
+      fps: 10,
     },
     attack: {
       sprite: "/sprites/Soldier/Soldier_Attack01.png",
       frames: 4,
-      width: 256, // 4 frames * 64px
+      width: 256,
       height: 64,
+      fps: 12,
     },
     hit: {
       sprite: "/sprites/Soldier/Soldier_Hit.png",
       frames: 6,
-      width: 384, // 6 frames * 64px
+      width: 384,
       height: 64,
+      fps: 12,
     },
     death: {
       sprite: "/sprites/Soldier/Soldier_Death.png",
       frames: 5,
-      width: 320, // 5 frames * 64px
+      width: 320,
       height: 64,
+      fps: 10,
     },
   },
   black: {
@@ -41,30 +49,35 @@ const SPRITE_CONFIG = {
       frames: 3,
       width: 192,
       height: 64,
+      fps: 6,
     },
     walk: {
       sprite: "/sprites/Orc/Orc_Walk.png",
       frames: 5,
       width: 320,
       height: 64,
+      fps: 10,
     },
     attack: {
       sprite: "/sprites/Orc/Orc_Attack01.png",
       frames: 4,
       width: 256,
       height: 64,
+      fps: 12,
     },
     hit: {
       sprite: "/sprites/Orc/Orc_Hit.png",
       frames: 6,
       width: 384,
       height: 64,
+      fps: 12,
     },
     death: {
       sprite: "/sprites/Orc/Orc_Death.png",
       frames: 5,
       width: 320,
       height: 64,
+      fps: 10,
     },
   },
 };
@@ -84,7 +97,6 @@ export const ChessPiece = ({
   const [currentAnimation, setCurrentAnimation] = useState<
     "idle" | "walk" | "attack" | "hit" | "death"
   >("idle");
-  const [currentFrame, setCurrentFrame] = useState(0);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
@@ -102,53 +114,29 @@ export const ChessPiece = ({
       setShouldAnimate(true);
     } else {
       setCurrentAnimation("idle");
-      setShouldAnimate(false);
+      setShouldAnimate(true);
     }
   }, [isAttacking, isMoving, isHit, isDead]);
 
-  useEffect(() => {
-    if (!shouldAnimate) {
-      setCurrentFrame(0);
-      return;
-    }
-
-    const config = SPRITE_CONFIG[color][currentAnimation];
-    const interval = setInterval(() => {
-      setCurrentFrame((prev) => {
-        const nextFrame = prev + 1;
-        if (nextFrame >= config.frames) {
-          if (
-            currentAnimation === "attack" ||
-            currentAnimation === "hit" ||
-            currentAnimation === "death"
-          ) {
-            setShouldAnimate(false);
-            return 0;
-          }
-          return 0;
-        }
-        return nextFrame;
-      });
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, [color, currentAnimation, shouldAnimate]);
-
   const config = SPRITE_CONFIG[color][currentAnimation];
-  const spriteStyle = {
-    width: (config.width / config.frames) * 2,
-    height: config.height * 2,
-    backgroundImage: `url(${config.sprite})`,
-    backgroundPosition: `-${currentFrame * (config.width / config.frames)}px 0`,
-    backgroundRepeat: "no-repeat",
-    transform: `scale(${width / ((config.width / config.frames) * 2)})`,
-    transformOrigin: "center",
-    imageRendering: "pixelated" as const,
-  };
+  const {
+    canvasRef,
+    width: frameWidth,
+    height: frameHeight,
+    isAnimating,
+  } = useCanvasSprite({
+    sprite: config.sprite,
+    frameCount: config.frames,
+    fps: config.fps,
+    width: config.width,
+    height: config.height,
+    loop: currentAnimation === "idle" || currentAnimation === "walk",
+    shouldAnimate,
+  });
 
   const variants: Variants = {
     idle: {
-      scale: 3,
+      scale: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -213,26 +201,36 @@ export const ChessPiece = ({
       >
         <motion.div
           style={{
-            ...spriteStyle,
             position: "absolute",
             width: `${width}px`,
             height: `${width}px`,
-            transform: `scale(${width / ((config.width / config.frames) * 2)})`,
+            transform: `scale(${(width / frameWidth) * 8})`,
             transformOrigin: "center",
             pointerEvents: "none",
           }}
           animate={{
-            y: isMoving ? -4 : 0,
+            y: isAnimating && isMoving ? -4 : 0,
           }}
           transition={{
             type: "spring",
             stiffness: 200,
             damping: 15,
-            repeat: isMoving ? Infinity : 0,
+            repeat: isAnimating && isMoving ? Infinity : 0,
             repeatType: "reverse",
             duration: 0.8,
           }}
-        />
+        >
+          <canvas
+            ref={canvasRef}
+            width={frameWidth}
+            height={frameHeight}
+            style={{
+              imageRendering: "pixelated",
+              width: `${frameWidth}px`,
+              height: `${frameHeight}px`,
+            }}
+          />
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
