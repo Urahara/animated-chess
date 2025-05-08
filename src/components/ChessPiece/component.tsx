@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChessPieceProps } from "./types";
-import { motion } from "framer-motion";
-import clsx from "clsx";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 const SPRITE_CONFIG = {
   white: {
@@ -130,39 +129,111 @@ export const ChessPiece = ({
         }
         return nextFrame;
       });
-    }, 150); // Slower animation speed
+    }, 200);
 
     return () => clearInterval(interval);
   }, [color, currentAnimation, shouldAnimate]);
 
   const config = SPRITE_CONFIG[color][currentAnimation];
   const spriteStyle = {
-    width: config.width / config.frames,
-    height: config.height,
+    width: (config.width / config.frames) * 2,
+    height: config.height * 2,
     backgroundImage: `url(${config.sprite})`,
     backgroundPosition: `-${currentFrame * (config.width / config.frames)}px 0`,
     backgroundRepeat: "no-repeat",
-    transform: `scale(${width / (config.width / config.frames)})`,
+    transform: `scale(${width / ((config.width / config.frames) * 2)})`,
     transformOrigin: "center",
     imageRendering: "pixelated" as const,
   };
 
+  const variants: Variants = {
+    idle: {
+      scale: 3,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10,
+      },
+    },
+    attack: {
+      scale: [1, 1.2, 1],
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 15,
+        duration: 0.4,
+      },
+    },
+    hit: {
+      scale: [1, 0.9, 1],
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+        duration: 0.2,
+      },
+    },
+    death: {
+      scale: [1, 0.8, 0],
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 30,
+        duration: 0.6,
+      },
+    },
+  };
+
   return (
-    <motion.div
-      id={type}
-      className={clsx("transition-all", className)}
-      animate={{
-        scale: isAttacking ? [1, 1.2, 1] : 1,
-        rotate: isAttacking ? [0, 15, -15, 0] : 0,
-      }}
-      transition={{
-        duration: 0.5,
-        ease: "easeInOut",
-      }}
-      style={style}
-      {...rest}
-    >
-      <div style={spriteStyle} />
-    </motion.div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        id={type}
+        className={className}
+        initial="idle"
+        animate={currentAnimation}
+        variants={variants}
+        style={{
+          ...style,
+          position: "relative",
+          width: width,
+          height: width,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 10,
+          overflow: "hidden",
+          pointerEvents: "auto",
+        }}
+        {...rest}
+      >
+        <motion.div
+          style={{
+            ...spriteStyle,
+            position: "absolute",
+            width: `${width}px`,
+            height: `${width}px`,
+            transform: `scale(${width / ((config.width / config.frames) * 2)})`,
+            transformOrigin: "center",
+            pointerEvents: "none",
+          }}
+          animate={{
+            y: isMoving ? -4 : 0,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+            repeat: isMoving ? Infinity : 0,
+            repeatType: "reverse",
+            duration: 0.8,
+          }}
+        />
+      </motion.div>
+    </AnimatePresence>
   );
 };

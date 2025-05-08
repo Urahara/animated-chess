@@ -7,7 +7,7 @@ export const ChessboardContextProvider = ({
   children,
 }: ChessboardContextProviderProps) => {
   const [selectedPieceCoords, setSelectedPieceCoords] =
-    useState<PiecesInfo | null>(defaultPiecesInfo[0]);
+    useState<PiecesInfo | null>(null);
   const [piecesInfo, setPiecesInfo] = useState<PiecesInfo[]>(defaultPiecesInfo);
   const [path, setPath] = useState<BasicCoords[]>([]);
 

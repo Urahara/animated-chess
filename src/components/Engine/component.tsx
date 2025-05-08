@@ -168,7 +168,7 @@ export const Engine = ({ height, width }: EngineProps) => {
               (p) => p.x === piece.coords.x && p.y === piece.coords.y
             );
             const isYourTurn = piece.color === turn;
-            const isSelected = selectedPieceCoords?.id === piece.id;
+            // const isSelected = selectedPieceCoords?.id === piece.id;
             const isAttacking = path.some(
               (p) =>
                 p.x === piece.coords.x &&
@@ -192,7 +192,7 @@ export const Engine = ({ height, width }: EngineProps) => {
                 initial={{ x: initialX, y: initialY }}
                 animate={{ x: targetX, y: targetY }}
                 transition={{ type: "tween", duration: 0.3 }}
-                className="absolute"
+                className="absolute overflow-hidden"
                 style={{ width: cellSize, height: cellSize }}
                 onClick={handlePieceClick}
               >
@@ -205,8 +205,7 @@ export const Engine = ({ height, width }: EngineProps) => {
                     "cursor-pointer": isYourTurn,
                   })}
                   isAttacking={isAttacking}
-                  isMoving={isSelected}
-                  style={{ transform: `rotate(${piece.rotate}deg)` }}
+                  isMoving={false}
                 />
               </motion.div>
             );
@@ -221,7 +220,6 @@ export const Engine = ({ height, width }: EngineProps) => {
     path,
     turn,
     setSelectedPieceCoords,
-    selectedPieceCoords,
   ]);
 
   const renderCoordinates = useMemo(() => {

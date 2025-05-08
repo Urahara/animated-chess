@@ -60,7 +60,6 @@ export const Chessboard = () => {
             height={cellSize}
             type={el.type}
             color={el.color}
-            style={{ transform: `rotate(${el.rotate}deg)` }}
           />
         ))}
       </div>
@@ -75,7 +74,6 @@ export const Chessboard = () => {
             height={cellSize}
             type={el.type}
             color={el.color}
-            style={{ transform: `rotate(${el.rotate}deg)` }}
           />
         ))}
       </div>
