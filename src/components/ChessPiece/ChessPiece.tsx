@@ -5,85 +5,19 @@ import { ChessPieceProps } from "./types";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useCanvasSprite } from "@/hooks";
 
+const SPRITESHEET = "/sprites/Warrior/SpriteSheet/Warrior_Sheet-Effect.png";
+const FRAME_WIDTH = 69;
+const FRAME_HEIGHT = 44;
+
 const SPRITE_CONFIG = {
-  white: {
-    idle: {
-      sprite: "/sprites/Soldier/Soldier_Idle.png",
-      frames: 3,
-      width: 192,
-      height: 64,
-      fps: 6,
-    },
-    walk: {
-      sprite: "/sprites/Soldier/Soldier_Walk.png",
-      frames: 5,
-      width: 320,
-      height: 64,
-      fps: 10,
-    },
-    attack: {
-      sprite: "/sprites/Soldier/Soldier_Attack01.png",
-      frames: 4,
-      width: 256,
-      height: 64,
-      fps: 12,
-    },
-    hit: {
-      sprite: "/sprites/Soldier/Soldier_Hit.png",
-      frames: 6,
-      width: 384,
-      height: 64,
-      fps: 12,
-    },
-    death: {
-      sprite: "/sprites/Soldier/Soldier_Death.png",
-      frames: 5,
-      width: 320,
-      height: 64,
-      fps: 10,
-    },
-  },
-  black: {
-    idle: {
-      sprite: "/sprites/Orc/Orc_Idle.png",
-      frames: 3,
-      width: 192,
-      height: 64,
-      fps: 6,
-    },
-    walk: {
-      sprite: "/sprites/Orc/Orc_Walk.png",
-      frames: 5,
-      width: 320,
-      height: 64,
-      fps: 10,
-    },
-    attack: {
-      sprite: "/sprites/Orc/Orc_Attack01.png",
-      frames: 4,
-      width: 256,
-      height: 64,
-      fps: 12,
-    },
-    hit: {
-      sprite: "/sprites/Orc/Orc_Hit.png",
-      frames: 6,
-      width: 384,
-      height: 64,
-      fps: 12,
-    },
-    death: {
-      sprite: "/sprites/Orc/Orc_Death.png",
-      frames: 5,
-      width: 320,
-      height: 64,
-      fps: 10,
-    },
-  },
+  idle: { row: 0, frames: 6, fps: 8 },
+  walk: { row: 1, frames: 8, fps: 12 },
+  attack: { row: 2, frames: 12, fps: 15 },
+  death: { row: 3, frames: 11, fps: 10 },
+  hit: { row: 4, frames: 4, fps: 12 },
 };
 
 export const ChessPiece = ({
-  color,
   type,
   width,
   className,
@@ -97,51 +31,54 @@ export const ChessPiece = ({
   const [currentAnimation, setCurrentAnimation] = useState<
     "idle" | "walk" | "attack" | "hit" | "death"
   >("idle");
-  const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
     if (isAttacking) {
       setCurrentAnimation("attack");
-      setShouldAnimate(true);
     } else if (isMoving) {
       setCurrentAnimation("walk");
-      setShouldAnimate(true);
     } else if (isHit) {
       setCurrentAnimation("hit");
-      setShouldAnimate(true);
     } else if (isDead) {
       setCurrentAnimation("death");
-      setShouldAnimate(true);
     } else {
       setCurrentAnimation("idle");
-      setShouldAnimate(true);
     }
   }, [isAttacking, isMoving, isHit, isDead]);
 
-  const config = SPRITE_CONFIG[color][currentAnimation];
+  const config = SPRITE_CONFIG[currentAnimation];
   const {
     canvasRef,
     width: frameWidth,
     height: frameHeight,
-    isAnimating,
   } = useCanvasSprite({
-    sprite: config.sprite,
+    sprite: SPRITESHEET,
     frameCount: config.frames,
     fps: config.fps,
-    width: config.width,
-    height: config.height,
+    width: FRAME_WIDTH,
+    height: FRAME_HEIGHT,
+    row: config.row,
     loop: currentAnimation === "idle" || currentAnimation === "walk",
-    shouldAnimate,
   });
 
   const variants: Variants = {
     idle: {
-      scale: 1,
+      scale: 1.5,
       y: 0,
       transition: {
         type: "spring",
         stiffness: 100,
         damping: 10,
+      },
+    },
+    walk: {
+      scale: 1,
+      y: [0, -4, 0],
+      transition: {
+        duration: 0.8,
+        repeat: Infinity,
+        repeatType: "reverse",
+        type: "tween",
       },
     },
     attack: {
@@ -202,22 +139,15 @@ export const ChessPiece = ({
         <motion.div
           style={{
             position: "absolute",
-            width: `${width}px`,
-            height: `${width}px`,
-            transform: `scale(${(width / frameWidth) * 8})`,
+            left: "50%",
+            top: "50%",
+            width: `${frameWidth}px`,
+            height: `${frameHeight}px`,
+            transform: `translate(-50%, -50%) translateX(10px) scale(${
+              width / frameWidth
+            })`,
             transformOrigin: "center",
             pointerEvents: "none",
-          }}
-          animate={{
-            y: isAnimating && isMoving ? -4 : 0,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 200,
-            damping: 15,
-            repeat: isAnimating && isMoving ? Infinity : 0,
-            repeatType: "reverse",
-            duration: 0.8,
           }}
         >
           <canvas

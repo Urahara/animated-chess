@@ -6,6 +6,7 @@ type UseCanvasSpriteProps = {
   fps: number;
   width: number;
   height: number;
+  row?: number;
   loop?: boolean;
   shouldAnimate?: boolean;
 };
@@ -16,33 +17,35 @@ export const useCanvasSprite = ({
   fps,
   width,
   height,
+  row = 0,
   loop = true,
   shouldAnimate = true,
 }: UseCanvasSpriteProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const frameWidth = width / frameCount;
-  const frameTime = 1000 / fps;
-  const lastFrameTime = useRef<number>(0);
+  const frameWidth = width;
+  const frameHeight = height;
+  const lastFrameTime = useRef(0);
   const currentFrame = useRef(0);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const animationFrameId = useRef<number | undefined>(undefined);
-  const isAnimating = useRef<boolean>(false);
+  const animationFrameId = useRef<number>(0);
+  const isAnimating = useRef(false);
 
   useEffect(() => {
-    const image = new Image();
-    image.src = sprite;
-    image.onload = () => {
-      imageRef.current = image;
+    const img = new Image();
+    img.src = sprite;
+    img.onload = () => {
+      imageRef.current = img;
       setIsLoaded(true);
     };
+    img.onerror = () => console.error('Falha ao carregar sprite:', sprite);
   }, [sprite]);
 
   useEffect(() => {
     if (!shouldAnimate || !isLoaded || !canvasRef.current || !imageRef.current) {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = undefined;
+        animationFrameId.current = 0;
       }
       isAnimating.current = false;
       return;
@@ -52,26 +55,30 @@ export const useCanvasSprite = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size to match the frame size
     canvas.width = frameWidth;
-    canvas.height = height;
+    canvas.height = frameHeight;
 
     const animate = (timestamp: number) => {
-      if (!lastFrameTime.current) {
-        lastFrameTime.current = timestamp;
-      }
-
+      if (!lastFrameTime.current) lastFrameTime.current = timestamp;
       const elapsed = timestamp - lastFrameTime.current;
 
-      if (elapsed >= frameTime) {
+      if (elapsed >= 1000 / fps) {
         lastFrameTime.current = timestamp;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          imageRef.current!,
+          currentFrame.current * frameWidth,
+          row * frameHeight,
+          frameWidth,
+          frameHeight,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
 
         if (currentFrame.current >= frameCount - 1) {
           if (!loop) {
-            if (animationFrameId.current) {
-              cancelAnimationFrame(animationFrameId.current);
-              animationFrameId.current = undefined;
-            }
             isAnimating.current = false;
             return;
           }
@@ -79,25 +86,11 @@ export const useCanvasSprite = ({
         } else {
           currentFrame.current++;
         }
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw current frame
-        ctx.drawImage(
-          imageRef.current!,
-          currentFrame.current * frameWidth,
-          0,
-          frameWidth,
-          height,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
       }
 
-      animationFrameId.current = requestAnimationFrame(animate);
+      if (isAnimating.current) {
+        animationFrameId.current = requestAnimationFrame(animate);
+      }
     };
 
     isAnimating.current = true;
@@ -106,16 +99,11 @@ export const useCanvasSprite = ({
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = undefined;
+        animationFrameId.current = 0;
       }
       isAnimating.current = false;
     };
-  }, [frameCount, frameTime, frameWidth, height, isLoaded, loop, shouldAnimate]);
+  }, [frameCount, fps, frameWidth, frameHeight, isLoaded, loop, shouldAnimate, row]);
 
-  return {
-    canvasRef,
-    width: frameWidth,
-    height,
-    isAnimating: isAnimating.current,
-  };
+  return { canvasRef, width: frameWidth, height: frameHeight, isAnimating: isAnimating.current };
 }; 

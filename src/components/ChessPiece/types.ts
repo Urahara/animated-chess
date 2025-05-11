@@ -1,5 +1,5 @@
 import { BasicCoords } from "@/context";
-import { MotionProps } from "framer-motion";
+import { HTMLMotionProps } from "framer-motion";
 
 export type PiecesTypes =
   | "peon"
@@ -9,9 +9,9 @@ export type PiecesTypes =
   | "queen"
   | "rook";
 
-export type ChessPieceProps = {
+export interface ChessPieceProps extends HTMLMotionProps<"div"> {
   color: "white" | "black";
-  type: "king" | "queen" | "bishop" | "knight" | "rook" | "peon";
+  type: string;
   width: number;
   height: number;
   className?: string;
@@ -19,7 +19,7 @@ export type ChessPieceProps = {
   isMoving?: boolean;
   isHit?: boolean;
   isDead?: boolean;
-} & Omit<MotionProps, "children">;
+}
 
 export type PiecesInfo = {
   id: string;

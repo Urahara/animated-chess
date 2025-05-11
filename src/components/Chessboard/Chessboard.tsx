@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Engine } from "../Engine/component";
+import { Engine } from "../Engine/Engine";
 import { ChessboardContext } from "@/context";
 import { ChessPiece, PiecesInfo } from "../ChessPiece";
 
@@ -60,6 +60,7 @@ export const Chessboard = () => {
             height={cellSize}
             type={el.type}
             color={el.color}
+            isDead
           />
         ))}
       </div>
@@ -74,6 +75,7 @@ export const Chessboard = () => {
             height={cellSize}
             type={el.type}
             color={el.color}
+            isDead
           />
         ))}
       </div>
