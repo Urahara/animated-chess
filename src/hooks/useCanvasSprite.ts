@@ -8,7 +8,7 @@ type UseCanvasSpriteProps = {
   height: number;
   row?: number;
   loop?: boolean;
-  shouldAnimate?: boolean;
+  startFrame?: number;
 };
 
 export const useCanvasSprite = ({
@@ -19,14 +19,14 @@ export const useCanvasSprite = ({
   height,
   row = 0,
   loop = true,
-  shouldAnimate = true,
+  startFrame = 0,
 }: UseCanvasSpriteProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const frameWidth = width;
   const frameHeight = height;
   const lastFrameTime = useRef(0);
-  const currentFrame = useRef(0);
+  const currentFrame = useRef(startFrame);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const animationFrameId = useRef<number>(0);
   const isAnimating = useRef(false);
@@ -41,8 +41,36 @@ export const useCanvasSprite = ({
     img.onerror = () => console.error('Falha ao carregar sprite:', sprite);
   }, [sprite]);
 
+  // Se for só um frame (ex: peça morta), desenha só esse frame
   useEffect(() => {
-    if (!shouldAnimate || !isLoaded || !canvasRef.current || !imageRef.current) {
+    if (frameCount === 1 && isLoaded && canvasRef.current && imageRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      canvas.width = frameWidth;
+      canvas.height = frameHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(
+        imageRef.current,
+        currentFrame.current * frameWidth,
+        row * frameHeight,
+        frameWidth,
+        frameHeight,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+    }
+  }, [frameCount, isLoaded, frameWidth, frameHeight, row]);
+
+  useEffect(() => {
+    if (
+      frameCount === 1 ||
+      !isLoaded ||
+      !canvasRef.current ||
+      !imageRef.current
+    ) {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
         animationFrameId.current = 0;
@@ -67,8 +95,8 @@ export const useCanvasSprite = ({
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(
           imageRef.current!,
-          currentFrame.current * frameWidth,
-          row * frameHeight,
+          currentFrame.current * frameWidth, // X
+          row * frameHeight,                // Y (linha da animação)
           frameWidth,
           frameHeight,
           0,
@@ -79,6 +107,19 @@ export const useCanvasSprite = ({
 
         if (currentFrame.current >= frameCount - 1) {
           if (!loop) {
+            currentFrame.current = frameCount - 1;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(
+              imageRef.current!,
+              currentFrame.current * frameWidth,
+              row * frameHeight,
+              frameWidth,
+              frameHeight,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
             isAnimating.current = false;
             return;
           }
@@ -103,7 +144,7 @@ export const useCanvasSprite = ({
       }
       isAnimating.current = false;
     };
-  }, [frameCount, fps, frameWidth, frameHeight, isLoaded, loop, shouldAnimate, row]);
+  }, [frameCount, fps, frameWidth, frameHeight, isLoaded, loop, row]);
 
   return { canvasRef, width: frameWidth, height: frameHeight, isAnimating: isAnimating.current };
 }; 

@@ -204,8 +204,10 @@ export const Engine = ({ height, width }: EngineProps) => {
                   className={clsx("", {
                     "cursor-pointer": isYourTurn,
                   })}
-                  isAttacking={isAttacking}
+                  isAttacking={isAttacking && piece.alive}
                   isMoving={false}
+                  isHit={false}
+                  isDead={!piece.alive}
                 />
               </motion.div>
             );

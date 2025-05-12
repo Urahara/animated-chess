@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ChessPieceProps } from "./types";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useCanvasSprite } from "@/hooks";
@@ -13,7 +13,7 @@ const SPRITE_CONFIG = {
   idle: { row: 0, frames: 6, fps: 8 },
   walk: { row: 1, frames: 8, fps: 12 },
   attack: { row: 2, frames: 12, fps: 15 },
-  death: { row: 3, frames: 11, fps: 10 },
+  death: { row: 5, frames: 11, fps: 10 },
   hit: { row: 4, frames: 4, fps: 12 },
 };
 
@@ -30,23 +30,30 @@ export const ChessPiece = ({
 }: ChessPieceProps) => {
   const [currentAnimation, setCurrentAnimation] = useState<
     "idle" | "walk" | "attack" | "hit" | "death"
-  >("idle");
+  >(isDead ? "death" : "idle");
+  const prevIsDead = useRef(isDead);
 
   useEffect(() => {
+    if (isDead) {
+      setCurrentAnimation("death");
+      prevIsDead.current = true;
+      return;
+    }
+    prevIsDead.current = false;
     if (isAttacking) {
       setCurrentAnimation("attack");
     } else if (isMoving) {
       setCurrentAnimation("walk");
     } else if (isHit) {
       setCurrentAnimation("hit");
-    } else if (isDead) {
-      setCurrentAnimation("death");
     } else {
       setCurrentAnimation("idle");
     }
   }, [isAttacking, isMoving, isHit, isDead]);
 
   const config = SPRITE_CONFIG[currentAnimation];
+  const startFrame = isDead ? config.frames - 1 : 0;
+
   const {
     canvasRef,
     width: frameWidth,
@@ -59,6 +66,7 @@ export const ChessPiece = ({
     height: FRAME_HEIGHT,
     row: config.row,
     loop: currentAnimation === "idle" || currentAnimation === "walk",
+    startFrame,
   });
 
   const variants: Variants = {
@@ -72,7 +80,7 @@ export const ChessPiece = ({
       },
     },
     walk: {
-      scale: 1,
+      scale: 1.5,
       y: [0, -4, 0],
       transition: {
         duration: 0.8,
@@ -82,32 +90,26 @@ export const ChessPiece = ({
       },
     },
     attack: {
-      scale: [1, 1.2, 1],
+      scale: [1.5, 1.7, 1.5],
       y: 0,
       transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
+        type: "tween",
         duration: 0.4,
       },
     },
     hit: {
-      scale: [1, 0.9, 1],
+      scale: [1.5, 1.4, 1.5],
       y: 0,
       transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
+        type: "tween",
         duration: 0.2,
       },
     },
     death: {
-      scale: [1, 0.8, 0],
+      scale: [1.5, 1.4, 1.5],
       y: 0,
       transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 30,
+        type: "tween",
         duration: 0.6,
       },
     },

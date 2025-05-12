@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Engine } from "../Engine/Engine";
 import { ChessboardContext } from "@/context";
-import { ChessPiece, PiecesInfo } from "../ChessPiece";
+import { ChessPiece } from "../ChessPiece";
 
 export const Chessboard = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,20 +29,13 @@ export const Chessboard = () => {
   }, []);
 
   const { deadWhite, deadBlack } = useMemo(() => {
-    const deadBlack: PiecesInfo[] = [];
-    const deadWhite: PiecesInfo[] = [];
-
-    piecesInfo.forEach((el) => {
-      if (!el.alive) {
-        if (el.color === "white") deadWhite.push(el);
-        else deadBlack.push(el);
-      }
-    });
-
-    return {
-      deadBlack,
-      deadWhite,
-    };
+    const deadBlack = piecesInfo.filter(
+      (el) => !el.alive && el.color === "black"
+    );
+    const deadWhite = piecesInfo.filter(
+      (el) => !el.alive && el.color === "white"
+    );
+    return { deadBlack, deadWhite };
   }, [piecesInfo]);
 
   const cellSize = Math.min(boardSize, boardSize) / 8;
