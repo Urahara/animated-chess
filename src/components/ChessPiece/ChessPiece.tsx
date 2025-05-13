@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { ChessPieceProps } from "./types";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useCanvasSprite } from "@/hooks";
@@ -11,10 +11,10 @@ const FRAME_HEIGHT = 44;
 
 const SPRITE_CONFIG = {
   idle: { row: 0, frames: 6, fps: 8 },
-  walk: { row: 1, frames: 8, fps: 12 },
-  attack: { row: 2, frames: 12, fps: 15 },
-  death: { row: 5, frames: 11, fps: 10 },
-  hit: { row: 4, frames: 4, fps: 12 },
+  walk: { row: 1, frames: 6, fps: 8 },
+  attack: { row: 2, frames: 6, fps: 8 },
+  death: { row: 5, frames: 6, fps: 8 },
+  hit: { row: 4, frames: 6, fps: 8 },
 };
 
 export const ChessPiece = ({
@@ -31,16 +31,11 @@ export const ChessPiece = ({
   const [currentAnimation, setCurrentAnimation] = useState<
     "idle" | "walk" | "attack" | "hit" | "death"
   >(isDead ? "death" : "idle");
-  const prevIsDead = useRef(isDead);
 
   useEffect(() => {
     if (isDead) {
       setCurrentAnimation("death");
-      prevIsDead.current = true;
-      return;
-    }
-    prevIsDead.current = false;
-    if (isAttacking) {
+    } else if (isAttacking) {
       setCurrentAnimation("attack");
     } else if (isMoving) {
       setCurrentAnimation("walk");
@@ -52,7 +47,7 @@ export const ChessPiece = ({
   }, [isAttacking, isMoving, isHit, isDead]);
 
   const config = SPRITE_CONFIG[currentAnimation];
-  const startFrame = isDead ? config.frames - 1 : 0;
+  const startFrame = config.frames;
 
   const {
     canvasRef,
@@ -110,7 +105,7 @@ export const ChessPiece = ({
       y: 0,
       transition: {
         type: "tween",
-        duration: 0.6,
+        duration: 0.2,
       },
     },
   };
@@ -131,7 +126,6 @@ export const ChessPiece = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: "pointer",
           zIndex: 10,
           overflow: "hidden",
           pointerEvents: "auto",
