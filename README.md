@@ -1,40 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 🎮 Animated Chess
 
-## Getting Started
+Um jogo de xadrez moderno e interativo com animações fluidas e uma interface elegante, construído com React e TypeScript.
 
-First, run the development server:
+![Chess Game Preview](public/preview.png)
+
+## ✨ Características
+
+- 🎨 Interface moderna e responsiva
+- 🎭 Animações fluidas para todas as peças
+- 🎯 Validação de movimentos em tempo real
+- 📱 Design responsivo para todos os dispositivos
+- 🏆 Sistema de pontuação
+
+## 🚀 Tecnologias
+
+- [React](https://reactjs.org/) - Biblioteca JavaScript para construção de interfaces
+- [TypeScript](https://www.typescriptlang.org/) - Superset JavaScript com tipagem estática
+- [Framer Motion](https://www.framer.com/motion/) - Biblioteca de animações
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utilitário
+- [Next.js](https://nextjs.org/) - Framework React para produção
+
+## 🛠️ Instalação
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/seu-usuario/animated-chess.git
+```
+
+2. Instale as dependências:
+
+```bash
+cd animated-chess
+npm install
+```
+
+3. Inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## 🎮 Como Jogar
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+1. Selecione uma peça clicando nela
+2. As casas válidas para movimento serão destacadas
+3. Clique na casa desejada para mover a peça
+4. O jogo alterna automaticamente entre os jogadores
+5. Capture peças adversárias movendo para suas casas
+6. O objetivo é dar xeque-mate ao rei adversário
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## 🎨 Animações
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O jogo inclui várias animações para tornar a experiência mais imersiva:
 
-## Learn More
+- **Idle**: Peças com animação suave de respiração
+- **Walk**: Movimento fluido ao trocar de posição
+- **Attack**: Animação de ataque ao capturar peças
+- **Hit**: Efeito visual quando uma peça é atacada
+- **Death**: Animação de desaparecimento quando capturada
 
-To learn more about Next.js, take a look at the following resources:
+## 📱 Responsividade
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+O jogo é totalmente responsivo e funciona em:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Desktop
+- Tablet
+- Smartphone
+- Orientação paisagem e retrato
 
-## Deploy on Vercel
+## 🤝 Contribuindo
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contribuições são bem-vindas! Sinta-se à vontade para:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+1. Fazer um Fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abrir um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👥 Autores
+
+- Seu Nome - [@Trovarelli](https://github.com/Trovarelli)
+
+## 🙏 Agradecimentos
+
+- [Chess.com](https://www.chess.com/) pela inspiração
+- [Framer Motion](https://www.framer.com/motion/) pelas animações
+- [Tailwind CSS](https://tailwindcss.com/) pelo design
+
+---
+
+⭐️ Se você gostou do projeto, não se esqueça de dar uma estrela!
