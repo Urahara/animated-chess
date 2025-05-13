@@ -11,7 +11,7 @@ export type PiecesTypes =
 
 export interface ChessPieceProps extends HTMLMotionProps<"div"> {
   color: "white" | "black";
-  type: string;
+  type: PiecesTypes;
   width: number;
   height: number;
   className?: string;

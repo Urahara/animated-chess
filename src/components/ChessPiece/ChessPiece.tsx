@@ -1,20 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ChessPieceProps } from "./types";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useCanvasSprite } from "@/hooks";
+import { useChessPieceAnimation, useChessPieceState } from "./hooks";
 
-const SPRITESHEET = "/sprites/Warrior/SpriteSheet/Warrior_Sheet-Effect.png";
-const FRAME_WIDTH = 69;
-const FRAME_HEIGHT = 44;
+const FRAME_WIDTH = 100;
+const FRAME_HEIGHT = 100;
 
-const SPRITE_CONFIG = {
-  idle: { row: 0, frames: 6, fps: 8 },
-  walk: { row: 1, frames: 6, fps: 8 },
-  attack: { row: 2, frames: 6, fps: 8 },
-  death: { row: 5, frames: 6, fps: 8 },
-  hit: { row: 4, frames: 6, fps: 8 },
+const ANIMATION_VARIANTS: Variants = {
+  idle: {
+    scale: 2.5,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 10 },
+  },
+  walk: {
+    scale: 2.5,
+    y: [0, -4, 0],
+    transition: {
+      duration: 0.8,
+      repeat: Infinity,
+      repeatType: "reverse",
+      type: "tween",
+    },
+  },
+  attack: {
+    scale: [2.5, 2.7, 2.5],
+    y: 0,
+    transition: { type: "tween", duration: 0.4 },
+  },
+  hit: {
+    scale: [2.5, 2.4, 2.5],
+    y: 0,
+    transition: { type: "tween", duration: 0.2 },
+  },
+  death: {
+    scale: [2.5, 2.4, 2.5],
+    y: 0,
+    transition: { type: "tween", duration: 0.2 },
+  },
 };
 
 export const ChessPiece = ({
@@ -25,90 +49,40 @@ export const ChessPiece = ({
   isMoving,
   isHit,
   isDead,
+  color,
   style,
   ...rest
 }: ChessPieceProps) => {
-  const [currentAnimation, setCurrentAnimation] = useState<
-    "idle" | "walk" | "attack" | "hit" | "death"
-  >(isDead ? "death" : "idle");
+  const currentAnimation = useChessPieceState({
+    isAttacking,
+    isMoving,
+    isHit,
+    isDead,
+  });
 
-  useEffect(() => {
-    if (isDead) {
-      setCurrentAnimation("death");
-    } else if (isAttacking) {
-      setCurrentAnimation("attack");
-    } else if (isMoving) {
-      setCurrentAnimation("walk");
-    } else if (isHit) {
-      setCurrentAnimation("hit");
-    } else {
-      setCurrentAnimation("idle");
-    }
-  }, [isAttacking, isMoving, isHit, isDead]);
-
-  const config = SPRITE_CONFIG[currentAnimation];
-  const startFrame = config.frames;
+  const { fps, row, frames, sprite } = useChessPieceAnimation({
+    color,
+    type,
+    currentAnimation,
+  });
 
   const {
     canvasRef,
     width: frameWidth,
     height: frameHeight,
   } = useCanvasSprite({
-    sprite: SPRITESHEET,
-    frameCount: config.frames,
-    fps: config.fps,
+    sprite,
+    frames,
+    fps,
     width: FRAME_WIDTH,
     height: FRAME_HEIGHT,
-    row: config.row,
+    row,
     loop: currentAnimation === "idle" || currentAnimation === "walk",
-    startFrame,
   });
 
-  const variants: Variants = {
-    idle: {
-      scale: 1.5,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10,
-      },
-    },
-    walk: {
-      scale: 1.5,
-      y: [0, -4, 0],
-      transition: {
-        duration: 0.8,
-        repeat: Infinity,
-        repeatType: "reverse",
-        type: "tween",
-      },
-    },
-    attack: {
-      scale: [1.5, 1.7, 1.5],
-      y: 0,
-      transition: {
-        type: "tween",
-        duration: 0.4,
-      },
-    },
-    hit: {
-      scale: [1.5, 1.4, 1.5],
-      y: 0,
-      transition: {
-        type: "tween",
-        duration: 0.2,
-      },
-    },
-    death: {
-      scale: [1.5, 1.4, 1.5],
-      y: 0,
-      transition: {
-        type: "tween",
-        duration: 0.2,
-      },
-    },
-  };
+  const transform = `translate(-50%, -50%) scale(${width / frameWidth})${
+    color === "white" ? " scaleX(-1)" : ""
+  }`;
 
   return (
     <AnimatePresence mode="wait">
@@ -117,11 +91,11 @@ export const ChessPiece = ({
         className={className}
         initial="idle"
         animate={currentAnimation}
-        variants={variants}
+        variants={ANIMATION_VARIANTS}
         style={{
           ...style,
           position: "relative",
-          width: width,
+          width,
           height: width,
           display: "flex",
           alignItems: "center",
@@ -139,9 +113,7 @@ export const ChessPiece = ({
             top: "50%",
             width: `${frameWidth}px`,
             height: `${frameHeight}px`,
-            transform: `translate(-50%, -50%) translateX(10px) scale(${
-              width / frameWidth
-            })`,
+            transform,
             transformOrigin: "center",
             pointerEvents: "none",
           }}
