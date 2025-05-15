@@ -7,16 +7,18 @@ import { useChessPieceAnimation, useChessPieceState } from "./hooks";
 
 const FRAME_WIDTH = 100;
 const FRAME_HEIGHT = 100;
+const VERTICAL_OFFSET = 10;
+const BASE_SCALE = 2.5;
 
 const ANIMATION_VARIANTS: Variants = {
   idle: {
-    scale: 2.5,
-    y: 0,
+    scale: BASE_SCALE,
+    y: VERTICAL_OFFSET,
     transition: { type: "spring", stiffness: 100, damping: 10 },
   },
   walk: {
-    scale: 2.5,
-    y: [0, -4, 0],
+    scale: BASE_SCALE,
+    y: [VERTICAL_OFFSET, VERTICAL_OFFSET - 4, VERTICAL_OFFSET],
     transition: {
       duration: 0.8,
       repeat: Infinity,
@@ -25,18 +27,18 @@ const ANIMATION_VARIANTS: Variants = {
     },
   },
   attack: {
-    scale: [2.5, 2.7, 2.5],
-    y: 0,
+    scale: [BASE_SCALE, BASE_SCALE + 0.2, BASE_SCALE],
+    y: VERTICAL_OFFSET,
     transition: { type: "tween", duration: 0.4 },
   },
   hit: {
-    scale: [2.5, 2.4, 2.5],
-    y: 0,
+    scale: [BASE_SCALE, BASE_SCALE - 0.1, BASE_SCALE],
+    y: VERTICAL_OFFSET,
     transition: { type: "tween", duration: 0.2 },
   },
   death: {
-    scale: [2.5, 2.4, 2.5],
-    y: 0,
+    scale: [BASE_SCALE, BASE_SCALE - 0.1, BASE_SCALE],
+    y: VERTICAL_OFFSET,
     transition: { type: "tween", duration: 0.2 },
   },
 };
