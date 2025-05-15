@@ -5,10 +5,18 @@ const BLACK_SPRITESHEET = "/sprites/Pieces/Black";
 
 type AnimationType = "idle" | "walk" | "attack" | "hit" | "death";
 
-interface AnimationConfig {
+interface AnimationFrameConfig {
   row: number;
   frames: number;
   fps: number;
+}
+
+interface PIECE_CONFIG {
+  sprite: string;
+  animations: Record<AnimationType, AnimationFrameConfig>;
+}
+
+interface AnimationConfig extends AnimationFrameConfig {
   sprite: string;
 }
 
@@ -18,21 +26,131 @@ interface UseChessPieceAnimationProps {
   currentAnimation: AnimationType;
 }
 
-const ANIMATION_CONFIGS: Record<AnimationType, AnimationConfig> = {
-  idle: { row: 0, frames: 6, fps: 8, sprite: "" },
-  walk: { row: 1, frames: 6, fps: 8, sprite: "" },
-  attack: { row: 2, frames: 6, fps: 8, sprite: "" },
-  death: { row: 5, frames: 6, fps: 8, sprite: "" },
-  hit: { row: 4, frames: 6, fps: 8, sprite: "" },
-};
-
-const PIECE_SPRITE_MAP: Record<PiecesTypes, string> = {
-  peon: "Pawn",
-  knight: "Knight",
-  bishop: "Bishop",
-  rook: "Rook",
-  queen: "Queen",
-  king: "King",
+const ANIMATION_CONFIGS: Record<"black" | "white", Record<PiecesTypes, PIECE_CONFIG>> = {
+  black: {
+    pawn: {
+      sprite: `${BLACK_SPRITESHEET}/Pawn.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 5, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    knight: {
+      sprite: `${BLACK_SPRITESHEET}/Knight.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 5, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    king: {
+      sprite: `${BLACK_SPRITESHEET}/King.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 5, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    bishop: {
+      sprite: `${BLACK_SPRITESHEET}/Bishop.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 8, fps: 8 },
+        attack: { row: 2, frames: 9, fps: 12 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 5, frames: 4, fps: 8 },
+      },
+    },
+    queen: {  
+      sprite: `${BLACK_SPRITESHEET}/Queen.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 5, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    rook: {
+      sprite: `${BLACK_SPRITESHEET}/Rook.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 5, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+  },
+  white: {
+    pawn: {
+      sprite: `${WHITE_SPRITESHEET}/Pawn.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    knight: {
+      sprite: `${WHITE_SPRITESHEET}/Knight.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    king: {
+      sprite: `${WHITE_SPRITESHEET}/King.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    bishop: {
+      sprite: `${WHITE_SPRITESHEET}/Bishop.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    queen: {
+      sprite: `${WHITE_SPRITESHEET}/Queen.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+    rook: {
+      sprite: `${WHITE_SPRITESHEET}/Rook.png`,
+      animations: {
+        idle: { row: 0, frames: 6, fps: 8 },
+        walk: { row: 1, frames: 6, fps: 8 },
+        attack: { row: 2, frames: 6, fps: 8 },
+        death: { row: 6, frames: 4, fps: 8 },
+        hit: { row: 4, frames: 6, fps: 8 },
+      },
+    },
+  },
 };
 
 export const useChessPieceAnimation = ({
@@ -40,16 +158,11 @@ export const useChessPieceAnimation = ({
   type,
   currentAnimation,
 }: UseChessPieceAnimationProps): AnimationConfig => {
-  const BASE_SPRITE_DIRECTORY = color === "white" ? WHITE_SPRITESHEET : BLACK_SPRITESHEET;
-  
-  if (!PIECE_SPRITE_MAP[type]) {
-    throw new Error(`Invalid piece type: ${type}`);
-  }
+  const pieceConfig = ANIMATION_CONFIGS[color][type];
+  const animationConfig = pieceConfig.animations[currentAnimation];
 
-  const spriteDirectory = `${BASE_SPRITE_DIRECTORY}/${PIECE_SPRITE_MAP[type]}.png`;
-  
   return {
-    ...ANIMATION_CONFIGS[currentAnimation],
-    sprite: spriteDirectory,
+    ...animationConfig,
+    sprite: pieceConfig.sprite,
   };
 };

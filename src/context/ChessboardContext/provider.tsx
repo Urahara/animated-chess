@@ -60,7 +60,7 @@ export const ChessboardContextProvider = ({
       };
 
       switch (piece.type) {
-        case "peon": {
+        case "pawn": {
           const direction = piece.color === "white" ? 1 : -1;
 
           const forwardOne = { x, y: (y + direction) as BasicCoords["y"] };

@@ -84,7 +84,7 @@ export const Engine = ({ height, width }: EngineProps) => {
             return {
               ...piece,
               coords: targetCoords,
-              ...(piece.type === "peon" && { firstMove: false }),
+              ...(piece.type === "pawn" && { firstMove: false }),
             };
           }
           return piece;
@@ -124,8 +124,8 @@ export const Engine = ({ height, width }: EngineProps) => {
             key={`${x}-${y}`}
             onClick={() => isPath && handleSquareClick({ x, y } as BasicCoords)}
             className={clsx("absolute", {
-              "bg-chess-light": isLight,
-              "bg-chess-dark": !isLight,
+              "bg-white/10": isLight,
+              "bg-black/10": !isLight,
               "animate-chess-pulse duration-700 z-10 cursor-pointer": isPath,
               "!bg-blue-200": isPath && !hasEnemy,
               "!bg-red-200": isPath && hasEnemy,

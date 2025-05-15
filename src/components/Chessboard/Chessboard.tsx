@@ -40,12 +40,15 @@ export const Chessboard = () => {
 
   const cellSize = Math.min(boardSize, boardSize) / 8;
 
+  console.log(deadWhite);
+  console.log(deadBlack);
+
   return (
     <div
       ref={containerRef}
-      className="w-full h-full flex justify-between items-center p-3 gap-3"
+      className="w-full h-full flex justify-between items-center p-3 gap-3 bg-[url('/sprites/Board/BattleField-01.png')] bg-cover bg-center bg-no-repeat"
     >
-      <div className="w-full bg-slate-500 h-full">
+      <div className="w-full h-full p-2 relative">
         {deadWhite.map((el) => (
           <ChessPiece
             key={el.id}
@@ -57,10 +60,19 @@ export const Chessboard = () => {
           />
         ))}
       </div>
-      <div className="p-8 bg-red-800">
-        <Engine width={boardSize} height={boardSize} />
+      <div className="relative p-4" style={{ overflow: "visible" }}>
+        <div
+          className="relative"
+          style={{
+            width: boardSize,
+            height: boardSize,
+            overflow: "visible",
+          }}
+        >
+          <Engine width={boardSize} height={boardSize} />
+        </div>
       </div>
-      <div className="w-full bg-slate-500 h-full">
+      <div className="w-full h-full p-2 relative">
         {deadBlack.map((el) => (
           <ChessPiece
             key={el.id}

@@ -2,7 +2,7 @@ import { BasicCoords } from "@/context";
 import { HTMLMotionProps } from "framer-motion";
 
 export type PiecesTypes =
-  | "peon"
+  | "pawn"
   | "knight"
   | "king"
   | "bishop"
